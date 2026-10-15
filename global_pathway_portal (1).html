@@ -498,21 +498,42 @@
         const guard = () => { if (!configured) { showToast("Add your Firebase config in the code first.", true); return false; } return true; };
 
         /* ---------- Auth ---------- */
+        const authMsg = e => ({
+            'auth/configuration-not-found': 'Authentication is not enabled. Firebase Console > Authentication > Get started > Email/Password.',
+            'auth/operation-not-allowed': 'Email/Password sign-in is not enabled in Firebase Authentication.',
+            'auth/email-already-in-use': 'That email is already registered. Use Log In instead.',
+            'auth/weak-password': 'Password must be at least 6 characters.',
+            'auth/invalid-credential': 'Wrong email or password.',
+            'auth/invalid-api-key': 'The API key in the code is wrong.',
+            'auth/unauthorized-domain': 'This website domain is not authorized. Firebase Console > Authentication > Settings > Authorized domains.',
+            'auth/operation-not-supported-in-this-environment': 'Open the site from a web address or local server, not by double-clicking the file.',
+            'permission-denied': 'Firestore rules blocked this. Create the database and publish the rules.',
+            'unavailable': 'Cannot reach Firestore. Check the database exists and you are online.'
+        }[e.code] || e.message);
+        if (location.protocol === 'file:') console.warn("Running from file:// - Firebase Auth needs http(s) or localhost.");
+
+        let making = false;
+        async function makeProfile(user, name) {
+            const refCode = "REF-" + Math.floor(100000 + Math.random() * 900000);
+            await setDoc(doc(db, 'users', user.uid), { name, email: user.email, refCode, phone: '', country: '', destination: '', docs: {}, status: 'Application Received', approved: false, createdAt: Date.now() });
+            await setDoc(doc(db, 'applications', refCode), { userId: user.uid, name: maskName(name), status: 'Application Received', docsUploaded: false, paymentStatus: 'Awaiting Payment' });
+        }
         window.processSignup = async () => {
             if (!guard()) return;
             const name = $('signName').value.trim(), email = $('signEmail').value.trim(), pass = $('signPass').value;
+            making = true;
             try {
                 const { user } = await createUserWithEmailAndPassword(auth, email, pass);
-                const refCode = "REF-" + Math.floor(100000 + Math.random() * 900000);
-                await setDoc(doc(db, 'users', user.uid), { name, email, refCode, phone: '', country: '', destination: '', docs: {}, status: 'Application Received', approved: false, createdAt: Date.now() });
-                await setDoc(doc(db, 'applications', refCode), { userId: user.uid, name: maskName(name), status: 'Application Received', docsUploaded: false, paymentStatus: 'Awaiting Payment' });
+                try { await makeProfile(user, name); }
+                catch (e) { console.error(e); showToast("Account created, but saving your profile failed: " + authMsg(e), true); return; }
                 hideAuthModal(); showToast("Account created successfully!"); showDashboard();
-            } catch (e) { showToast(e.message, true); }
+            } catch (e) { console.error(e); showToast(authMsg(e), true); }
+            finally { making = false; }
         };
         window.processLogin = async () => {
             if (!guard()) return;
             try { await signInWithEmailAndPassword(auth, $('logEmail').value.trim(), $('logPass').value); hideAuthModal(); showToast("Securely logged in."); showDashboard(); }
-            catch (e) { showToast("Authentication failed. Check credentials.", true); }
+            catch (e) { console.error(e); showToast(authMsg(e), true); }
         };
         window.handleLogout = async () => { await signOut(auth); showToast("Securely logged out."); };
         window.resetPassword = async () => {
@@ -527,9 +548,12 @@
             $('navAuthLoggedOut').classList.toggle('hidden', !!u);
             $('navAuthLoggedIn').classList.toggle('hidden', !u);
             if (!u) { showLanding(); return; }
-            const err = e => { console.error(e); showToast("Database error - check your Firestore rules.", true); };
+            const err = e => { console.error(e); showToast(authMsg(e), true); };
             const watch = (q, fn) => unsubs.push(onSnapshot(q, fn, err));
-            watch(doc(db, 'users', u.uid), s => { profile = s.data() || {}; render(); });
+            watch(doc(db, 'users', u.uid), s => {
+                if (!s.exists() && !making) makeProfile(u, u.displayName || (u.email || 'Client').split('@')[0]).catch(e => showToast(authMsg(e), true));
+                profile = s.data() || {}; render();
+            });
             watch(query(collection(db, 'payments'), where('uid', '==', u.uid)), s => { payments = s.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
             watch(query(collection(db, 'messages'), where('uid', '==', u.uid)), s => { messages = s.docs.map(d => d.data()); render(); });
             if (isAdmin()) {
