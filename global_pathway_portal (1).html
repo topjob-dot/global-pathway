@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Pathway | Official Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        corporate: {
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            accent: '#2563eb',
+                            light: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Loader */
+        .spinner { border: 3px solid rgba(255,255,255,0.1); border-left-color: #2563eb; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .inp { width:100%; background:#0f172a; border:1px solid #374151; border-radius:.375rem; padding:.625rem 1rem; color:#fff; outline:none; }
+        .inp:focus { border-color:#2563eb; }
+        select.inp option { background:#0f172a; }
+        .lbl { display:block; font-size:.7rem; font-weight:600; color:#9ca3af; text-transform:uppercase; margin-bottom:.4rem; }
+        .btn-p { background:#2563eb; color:#fff; font-weight:700; padding:.75rem 1.25rem; border-radius:.375rem; transition:background .2s; }
+        .btn-p:hover { background:#3b82f6; }
+        .btn-s { font-size:.75rem; font-weight:600; padding:.4rem .8rem; border-radius:.375rem; border:1px solid rgba(255,255,255,.2); color:#fff; }
+        .btn-s:hover { background:rgba(255,255,255,.1); }
+        .tab-btn { white-space:nowrap; padding:.5rem 1.1rem; border-radius:.375rem; font-size:.875rem; font-weight:600; color:#9ca3af; border:1px solid rgba(255,255,255,.1); }
+        .tab-btn:hover { color:#fff; }
+        .tab-btn.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+        details summary { cursor:pointer; font-size:.875rem; color:#e5e7eb; padding:.4rem 0; }
+    </style>
+</head>
+<body class="antialiased selection:bg-corporate-accent selection:text-white">
+
+    <!-- Toast Notification -->
+    <div id="toastMsg" class="fixed bottom-4 right-4 px-6 py-3 rounded shadow-lg z-50 text-white transform transition-transform duration-300 translate-y-20 opacity-0 pointer-events-none"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-panel border-b border-white/5 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="#" onclick="showLanding()" class="flex items-center gap-3">
+                    <svg class="w-8 h-8 text-corporate-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <div>
+                        <span class="text-xl font-bold tracking-tight text-white block leading-none">Global Pathway</span>
+                        <span class="text-[10px] font-semibold text-corporate-accent tracking-widest uppercase mt-1 block">Mobility Services</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#procedure" class="text-sm font-medium text-gray-300 hover:text-white transition-colors landing-link">Procedure</a>
+                    <a href="#verification" class="text-sm font-medium text-gray-300 hover:text-white transition-colors landing-link">Verification</a>
+                    <button onclick="togglePrivacyModal()" class="text-sm font-medium text-gray-300 hover:text-white transition-colors">Privacy Policy</button>
+                    
+                    <!-- Auth State Buttons -->
+                    <div id="navAuthLoggedOut">
+                        <button onclick="showAuthModal()" class="bg-corporate-accent hover:bg-blue-500 text-white px-6 py-2.5 rounded text-sm font-bold transition-all shadow-lg">
+                            Client Login
+                        </button>
+                    </div>
+                    <div id="navAuthLoggedIn" class="hidden flex items-center space-x-4">
+                        <button onclick="showDashboard()" class="text-sm font-bold text-white hover:text-corporate-accent transition-colors">Dashboard</button>
+                        <button onclick="handleLogout()" class="border border-white/20 hover:bg-white/10 text-white px-5 py-2 rounded text-sm font-medium transition-all">
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Toggle -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobileMenuBtn" class="text-gray-300 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ================= LANDING VIEW ================= -->
+    <div id="landingView">
+        
+        <!-- Hero Section -->
+        <section class="relative h-screen min-h-[700px] flex items-center justify-center overflow-hidden">
+            <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0">
+                <source src="https://videos.pexels.com/video-files/3129957/3129957-uhd_2560_1440_25fps.mp4" type="video/mp4">
+            </video>
+            <div class="absolute inset-0 bg-corporate-900/80 z-0"></div>
+
+            <div class="relative z-10 max-w-4xl mx-auto px-4 text-center mt-16 reveal">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border border-corporate-accent/30 text-xs text-corporate-accent font-medium mb-6">
+                    <span class="w-2 h-2 rounded-full bg-corporate-accent animate-pulse"></span>
+                    Secure Application Processing
+                </div>
+                <h1 class="text-4xl md:text-6xl font-bold text-white tracking-tight leading-tight mb-6">
+                    Streamlined Mobility,<br>Verified Integrity.
+                </h1>
+                <p class="text-lg text-gray-300 max-w-2xl mx-auto mb-10 font-light">
+                    Submit credentials securely, process fees transparently, and trace your application status through our cryptographically audited portal.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <button onclick="showAuthModal()" class="bg-corporate-accent hover:bg-blue-500 text-white font-bold px-8 py-4 rounded transition-all shadow-lg flex items-center justify-center gap-2">
+                        Start Application <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                    <a href="#verification" class="glass-panel hover:bg-white/10 text-white font-semibold px-8 py-4 rounded transition-all flex items-center justify-center">
+                        Verify Invoice
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Procedure Timeline -->
+        <section id="procedure" class="py-24 bg-corporate-900 border-y border-white/5 relative">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6">
+                <div class="text-center mb-16 reveal">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Procedure for Application</h2>
+                    <p class="text-gray-400">A clear, documented pathway for your international mobility application.</p>
+                </div>
+
+                <div class="relative wrap overflow-hidden p-4 md:p-10 h-full">
+                    <div class="absolute border-opacity-20 border-white h-full border-l-2 left-1/2 transform -translate-x-1/2"></div>
+                    
+                    <!-- Step 1 -->
+                    <div class="mb-12 flex justify-between items-center w-full right-timeline reveal">
+                        <div class="hidden md:block w-5/12"></div>
+                        <div class="z-20 flex items-center justify-center bg-corporate-800 w-10 h-10 rounded-full border-2 border-corporate-accent text-white font-bold">1</div>
+                        <div class="glass-panel rounded-lg w-full md:w-5/12 px-6 py-5 text-left ml-4 md:ml-0">
+                            <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                                <svg class="w-5 h-5 text-corporate-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Profile Creation
+                            </h3>
+                            <p class="text-sm text-gray-400 mt-2">Register on the portal to generate a unique Reference ID tracking your file across the entire network.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="mb-12 flex justify-between flex-row-reverse items-center w-full left-timeline reveal">
+                        <div class="hidden md:block w-5/12"></div>
+                        <div class="z-20 flex items-center justify-center bg-corporate-800 w-10 h-10 rounded-full border-2 border-corporate-accent text-white font-bold">2</div>
+                        <div class="glass-panel rounded-lg w-full md:w-5/12 px-6 py-5 text-left md:text-right mr-4 md:mr-0">
+                            <h3 class="font-bold text-white text-lg flex items-center md:justify-end gap-2">
+                                Document Submission <svg class="w-5 h-5 text-corporate-accent hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                            </h3>
+                            <p class="text-sm text-gray-400 mt-2">Securely upload certified copies of Identity (Passport) and Academic Credentials for preliminary audit.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="mb-12 flex justify-between items-center w-full right-timeline reveal">
+                        <div class="hidden md:block w-5/12"></div>
+                        <div class="z-20 flex items-center justify-center bg-corporate-800 w-10 h-10 rounded-full border-2 border-corporate-accent text-white font-bold">3</div>
+                        <div class="glass-panel rounded-lg w-full md:w-5/12 px-6 py-5 text-left ml-4 md:ml-0">
+                            <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                                <svg class="w-5 h-5 text-corporate-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg> Fee Assessment
+                            </h3>
+                            <p class="text-sm text-gray-400 mt-2">Once documents are verified, standard processing fees are recorded against your Reference ID in the central registry.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Verification Portal -->
+        <section id="verification" class="py-24 bg-corporate-800/50 relative overflow-hidden">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+                <div class="text-center mb-12 reveal">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Invoice & Credential Verification</h2>
+                    <p class="text-gray-400 max-w-2xl mx-auto">Enter an official Reference Code to securely query our database and confirm payer credentials and application standing.</p>
+                </div>
+
+                <div class="glass-panel rounded-xl max-w-3xl mx-auto border border-corporate-accent/20 p-8 reveal">
+                    <div class="flex flex-col md:flex-row gap-4 mb-8">
+                        <div class="flex-1 relative">
+                            <svg class="w-5 h-5 absolute left-4 top-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <input type="text" id="verifyInput" class="w-full bg-corporate-900 border border-gray-700 focus:border-corporate-accent rounded px-4 py-3 pl-12 text-white outline-none transition-all uppercase" placeholder="Enter Reference Code (e.g. REF-123456)">
+                        </div>
+                        <button onclick="executeVerification()" class="bg-white hover:bg-gray-200 text-corporate-900 font-bold px-8 py-3 rounded transition-all flex items-center justify-center gap-2">
+                            Verify Now
+                        </button>
+                    </div>
+
+                    <!-- Verification Result Display -->
+                    <div id="verifyResult" class="hidden border-t border-gray-700 pt-8 mt-4">
+                        <div class="bg-corporate-900/50 border border-gray-700 rounded-lg p-6">
+                            <div class="flex items-center gap-3 mb-6">
+                                <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <h3 class="text-xl font-bold text-white">Record Found & Authenticated</h3>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                                <div>
+                                    <p class="text-gray-500 uppercase tracking-wider text-xs mb-1">Applicant Name</p>
+                                    <p id="v-name" class="font-semibold text-white text-base">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 uppercase tracking-wider text-xs mb-1">Payment Status</p>
+                                    <p id="v-email" class="font-semibold text-white text-base">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 uppercase tracking-wider text-xs mb-1">Application Status</p>
+                                    <p id="v-status" class="inline-block px-2 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded font-medium mt-1">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 uppercase tracking-wider text-xs mb-1">Document Status</p>
+                                    <p id="v-docs" class="font-semibold text-white text-base">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ================= DASHBOARD VIEW (Requires Auth) ================= -->
+    <div id="dashboardView" class="hidden min-h-screen pt-28 pb-24 bg-corporate-900">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-white">Welcome, <span id="dash-name">Client</span></h1>
+                    <p id="dash-email" class="text-gray-400 text-sm mt-1"></p>
+                </div>
+                <div class="glass-panel rounded-lg px-4 py-3 flex items-center gap-4">
+                    <div>
+                        <p class="text-[10px] uppercase tracking-wider text-gray-500">Reference ID</p>
+                        <p id="dash-ref" class="font-mono font-bold text-corporate-accent">...</p>
+                    </div>
+                    <span id="dash-status" class="px-3 py-1 bg-yellow-500/20 text-yellow-400 border border-yellow-500/20 rounded text-xs font-medium">...</span>
+                    <button onclick="copyText(document.getElementById('dash-ref').textContent)" class="btn-s">Copy</button>
+                </div>
+            </div>
+
+            <div class="flex gap-2 overflow-x-auto mb-8 pb-1">
+                <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+                <button class="tab-btn" data-tab="documents" onclick="switchTab('documents')">Documents</button>
+                <button class="tab-btn" data-tab="payment" onclick="switchTab('payment')">Payment</button>
+                <button class="tab-btn" data-tab="support" onclick="switchTab('support')">Support</button>
+                <button class="tab-btn" data-tab="profile" onclick="switchTab('profile')">Profile</button>
+                <button id="tabAdmin" class="tab-btn hidden" data-tab="admin" onclick="switchTab('admin')">Agency Admin</button>
+            </div>
+
+            <!-- Overview -->
+            <section id="panel-overview" class="panel space-y-6"></section>
+
+            <!-- Documents -->
+            <section id="panel-documents" class="panel hidden">
+                <div class="glass-panel p-6 sm:p-8 rounded-xl">
+                    <h2 class="text-xl font-bold text-white mb-1">Required Documentation</h2>
+                    <p class="text-sm text-gray-400 mb-6">PDF, JPG or PNG, max 10 MB each. Files upload as soon as you select them.</p>
+                    <div id="docList" class="space-y-4"></div>
+                </div>
+            </section>
+
+            <!-- Payment -->
+            <section id="panel-payment" class="panel hidden">
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h2 class="text-lg font-bold text-white mb-4">1. Pay the Agency</h2>
+                        <div id="payInstr"></div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="glass-panel p-6 rounded-xl">
+                            <h2 class="text-lg font-bold text-white mb-1">2. Submit Your Payment Reference</h2>
+                            <p class="text-xs text-gray-400 mb-4">Enter the transaction ID from your receipt. It is matched to your application automatically and confirmed by the agency.</p>
+                            <form onsubmit="event.preventDefault(); submitPayment();" class="space-y-4">
+                                <div><label class="lbl">Transaction / Receipt Reference</label><input id="payRef" class="inp uppercase" placeholder="e.g. TXN8F29K1" required></div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label class="lbl">Amount Paid</label><input id="payAmt" type="number" step="0.01" min="0" class="inp" required></div>
+                                    <div><label class="lbl">Payment Date</label><input id="payDate" type="date" class="inp" required></div>
+                                </div>
+                                <div><label class="lbl">Method Used</label><select id="payMethod" class="inp"></select></div>
+                                <button class="btn-p w-full">Submit for Matching</button>
+                            </form>
+                        </div>
+                        <div class="glass-panel p-6 rounded-xl">
+                            <h2 class="text-lg font-bold text-white mb-4">Payment History</h2>
+                            <div id="payHist"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Support -->
+            <section id="panel-support" class="panel hidden">
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 glass-panel p-6 rounded-xl">
+                        <h2 class="text-lg font-bold text-white mb-4">Messages to the Agency</h2>
+                        <div id="thread" class="space-y-3 max-h-96 overflow-y-auto mb-4"></div>
+                        <form onsubmit="event.preventDefault(); sendMessage();" class="flex gap-3">
+                            <input id="msgText" class="inp" placeholder="Type your message..." maxlength="500" required>
+                            <button class="btn-p">Send</button>
+                        </form>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h2 class="text-lg font-bold text-white mb-4">Contact & FAQ</h2>
+                        <div id="contactBox" class="text-sm text-gray-300 space-y-1 mb-5"></div>
+                        <details><summary>How long does verification take?</summary><p class="text-xs text-gray-400 pb-2">Payments are usually matched within 1-2 business days.</p></details>
+                        <details><summary>Where do I find my payment reference?</summary><p class="text-xs text-gray-400 pb-2">On your bank or mobile money receipt, often called Transaction ID.</p></details>
+                        <details><summary>I paid the wrong amount</summary><p class="text-xs text-gray-400 pb-2">Submit the reference anyway and send us a message explaining.</p></details>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Profile -->
+            <section id="panel-profile" class="panel hidden">
+                <div class="glass-panel p-6 sm:p-8 rounded-xl max-w-2xl">
+                    <h2 class="text-xl font-bold text-white mb-6">My Profile</h2>
+                    <form onsubmit="event.preventDefault(); saveProfile();" class="space-y-4">
+                        <div><label class="lbl">Full Legal Name</label><input id="pName" class="inp" required></div>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div><label class="lbl">Phone / WhatsApp</label><input id="pPhone" class="inp" placeholder="+254..."></div>
+                            <div><label class="lbl">Country of Residence</label><input id="pCountry" class="inp"></div>
+                        </div>
+                        <div><label class="lbl">Destination / Programme</label><input id="pDest" class="inp" placeholder="e.g. Canada - Study Permit"></div>
+                        <div class="flex flex-wrap gap-3">
+                            <button class="btn-p">Save Changes</button>
+                            <button type="button" onclick="resetPassword()" class="btn-s">Send Password Reset Email</button>
+                        </div>
+                    </form>
+                    <p class="text-[11px] text-gray-500 mt-6">Account ID: <span id="uidBox" class="font-mono"></span></p>
+                </div>
+            </section>
+
+            <!-- Agency Admin -->
+            <section id="panel-admin" class="panel hidden"><div id="adminBody"></div></section>
+
+        </div>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Auth Modal (Login/Signup) -->
+    <div id="authModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="hideAuthModal()"></div>
+        <div class="glass-panel p-8 rounded-xl w-full max-w-md relative z-10 mx-4 border border-white/10 shadow-2xl">
+            <button onclick="hideAuthModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="flex mb-6 border-b border-gray-700">
+                <button id="tabLogin" onclick="switchAuthTab('login')" class="flex-1 pb-3 text-sm font-bold text-corporate-accent border-b-2 border-corporate-accent">Log In</button>
+                <button id="tabSignup" onclick="switchAuthTab('signup')" class="flex-1 pb-3 text-sm font-bold text-gray-500 hover:text-gray-300">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="formLogin" onsubmit="event.preventDefault(); processLogin();" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Email Address</label>
+                    <input type="email" id="logEmail" required class="w-full bg-corporate-900 border border-gray-700 focus:border-corporate-accent rounded px-4 py-2.5 text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Password</label>
+                    <input type="password" id="logPass" required class="w-full bg-corporate-900 border border-gray-700 focus:border-corporate-accent rounded px-4 py-2.5 text-white outline-none">
+                </div>
+                <button type="submit" class="w-full bg-corporate-accent hover:bg-blue-500 text-white font-bold py-3 rounded transition-all mt-2">Access Portal</button>
+                <button type="button" onclick="resetPassword()" class="w-full text-xs text-gray-400 hover:text-white pt-1">Forgot password? Email me a reset link</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="formSignup" onsubmit="event.preventDefault(); processSignup();" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Full Legal Name</label>
+                    <input type="text" id="signName" required class="w-full bg-corporate-900 border border-gray-700 focus:border-corporate-accent rounded px-4 py-2.5 text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Email Address</label>
+                    <input type="email" id="signEmail" required class="w-full bg-corporate-900 border border-gray-700 focus:border-corporate-accent rounded px-4 py-2.5 text-white outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Password</label>
+                    <input type="password" id="signPass" required class="w-full bg-corporate-900 border border-gray-700 focus:border-corporate-accent rounded px-4 py-2.5 text-white outline-none">
+                </div>
+                <button type="submit" class="w-full bg-corporate-accent hover:bg-blue-500 text-white font-bold py-3 rounded transition-all mt-2">Create Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacyModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="togglePrivacyModal()"></div>
+        <div class="glass-panel p-8 rounded-xl w-full max-w-2xl relative z-10 mx-4 border border-white/10 shadow-2xl max-h-[80vh] overflow-y-auto">
+            <button onclick="togglePrivacyModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h2 class="text-2xl font-bold text-white mb-6">Privacy Policy & Data Security</h2>
+            <div class="text-sm text-gray-300 space-y-4">
+                <p><strong>1. Data Collection:</strong> Global Pathway Mobility collects identity documentation strictly for the purpose of international application processing and auditing.</p>
+                <p><strong>2. Security Protocols:</strong> All submitted files and structural data are secured using industry-standard cryptography. Authentication frameworks ensure data visibility is restricted to the applicant and authorized consulate auditors.</p>
+                <p><strong>3. Invoice Public Registry:</strong> For payment validation, a Reference Code is generated. Querying this code displays non-sensitive application metrics (Name, Status) to establish financial traceability.</p>
+                <p><strong>4. Retention:</strong> Data is purged automatically 90 days after visa culmination or upon explicit written request.</p>
+            </div>
+            <button onclick="togglePrivacyModal()" class="mt-8 bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded">Close Document</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-black py-8 border-t border-white/5 text-gray-500 text-sm text-center">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>Copyright 2026 Global Pathway Mobility Services. Corporate verification gateway.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase Implementation -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, addDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        /* =====================================================================
+           1) FIREBASE CONFIG - paste yours from Firebase Console > Project settings
+           ===================================================================== */
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        /* =====================================================================
+           2) AGENCY ADMIN - paste your own Account ID (shown on Profile tab after
+              you register). Also put the same ID in the Firebase rules.
+           ===================================================================== */
+        const ADMIN_UIDS = [ /* "PASTE_ADMIN_UID_HERE" */ ];
+
+        /* =====================================================================
+           3) AGENCY PAYMENT DETAILS - edit freely. Clients see exactly this.
+           ===================================================================== */
+        const AGENCY = {
+            feeLabel: "Processing Fee",
+            fee: 250,
+            currency: "USD",
+            deadline: "Pay within 5 business days of registering.",
+            note: "Use your Reference ID as the payment narration, then submit your transaction reference in the form.",
+            contact: { email: "support@yourdomain.com", phone: "+000 000 000 000", hours: "Mon-Fri, 9:00-17:00" },
+            methods: [
+                { name: "Bank Transfer", fields: [
+                    ["Bank Name", "YOUR BANK NAME"], ["Account Name", "GLOBAL PATHWAY MOBILITY SERVICES"],
+                    ["Account Number", "0000000000"], ["SWIFT / BIC", "XXXXXXXX"] ] },
+                { name: "Mobile Money", fields: [
+                    ["Provider", "YOUR PROVIDER"], ["Number / Paybill", "000000"], ["Account Name", "GLOBAL PATHWAY"] ] }
+            ]
+        };
+
+        /* ===================== App code (no edits needed below) ===================== */
+        const configured = !firebaseConfig.apiKey.startsWith("YOUR");
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app), db = getFirestore(app), storage = getStorage(app);
+
+        const $ = id => document.getElementById(id);
+        const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const money = n => `${AGENCY.currency} ${Number(n).toLocaleString()}`;
+        const fmt = t => t ? new Date(t).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : '';
+        const badge = (t, c) => `<span class="px-2 py-0.5 rounded text-xs font-medium bg-${c}-500/20 text-${c}-400 border border-${c}-500/20">${esc(t)}</span>`;
+        const payColor = s => s === 'Confirmed' ? 'green' : s === 'Rejected' ? 'red' : 'yellow';
+        const maskName = n => { const p = n.trim().split(/\s+/); return p.length > 1 ? `${p[0]} ${p[p.length-1][0]}.` : p[0]; };
+
+        const STEPS = ['Registered', 'Documents', 'Payment Sent', 'Payment Confirmed', 'Approved'];
+        const DOCS = [
+            { key: 'passport', label: 'Valid Passport Copy', hint: 'High-resolution scan of the biographical page.', req: true },
+            { key: 'academic', label: 'Academic Credentials', hint: 'Highest degree certificate and transcript.', req: true },
+            { key: 'photo', label: 'Passport Photo', hint: 'Recent photo on a plain background.', req: false },
+            { key: 'other', label: 'Supporting Document', hint: 'Offer letter, bank statement, etc.', req: false }
+        ];
+
+        let me = null, profile = {}, payments = [], messages = [], adminPays = [], adminMsgs = [], unsubs = [];
+        let payIdx = 0, filled = false;
+        const cache = {};
+        const setHTML = (id, h) => { if (cache[id] !== h) { cache[id] = h; $(id).innerHTML = h; } };
+        const isAdmin = () => !!me && ADMIN_UIDS.includes(me.uid);
+        const guard = () => { if (!configured) { showToast("Add your Firebase config in the code first.", true); return false; } return true; };
+
+        /* ---------- Auth ---------- */
+        window.processSignup = async () => {
+            if (!guard()) return;
+            const name = $('signName').value.trim(), email = $('signEmail').value.trim(), pass = $('signPass').value;
+            try {
+                const { user } = await createUserWithEmailAndPassword(auth, email, pass);
+                const refCode = "REF-" + Math.floor(100000 + Math.random() * 900000);
+                await setDoc(doc(db, 'users', user.uid), { name, email, refCode, phone: '', country: '', destination: '', docs: {}, status: 'Application Received', approved: false, createdAt: Date.now() });
+                await setDoc(doc(db, 'applications', refCode), { userId: user.uid, name: maskName(name), status: 'Application Received', docsUploaded: false, paymentStatus: 'Awaiting Payment' });
+                hideAuthModal(); showToast("Account created successfully!"); showDashboard();
+            } catch (e) { showToast(e.message, true); }
+        };
+        window.processLogin = async () => {
+            if (!guard()) return;
+            try { await signInWithEmailAndPassword(auth, $('logEmail').value.trim(), $('logPass').value); hideAuthModal(); showToast("Securely logged in."); showDashboard(); }
+            catch (e) { showToast("Authentication failed. Check credentials.", true); }
+        };
+        window.handleLogout = async () => { await signOut(auth); showToast("Securely logged out."); };
+        window.resetPassword = async () => {
+            const email = (me && me.email) || $('logEmail').value.trim();
+            if (!email) return showToast("Enter your email first.", true);
+            try { await sendPasswordResetEmail(auth, email); showToast("Password reset email sent."); } catch (e) { showToast(e.message, true); }
+        };
+
+        onAuthStateChanged(auth, u => {
+            unsubs.forEach(f => f()); unsubs = [];
+            me = u; profile = {}; payments = []; messages = []; adminPays = []; adminMsgs = []; filled = false;
+            $('navAuthLoggedOut').classList.toggle('hidden', !!u);
+            $('navAuthLoggedIn').classList.toggle('hidden', !u);
+            if (!u) { showLanding(); return; }
+            const err = e => { console.error(e); showToast("Database error - check your Firestore rules.", true); };
+            const watch = (q, fn) => unsubs.push(onSnapshot(q, fn, err));
+            watch(doc(db, 'users', u.uid), s => { profile = s.data() || {}; render(); });
+            watch(query(collection(db, 'payments'), where('uid', '==', u.uid)), s => { payments = s.docs.map(d => ({ id: d.id, ...d.data() })); render(); });
+            watch(query(collection(db, 'messages'), where('uid', '==', u.uid)), s => { messages = s.docs.map(d => d.data()); render(); });
+            if (isAdmin()) {
+                watch(collection(db, 'payments'), s => { adminPays = s.docs.map(d => ({ id: d.id, ...d.data() })); renderAdmin(); });
+                watch(collection(db, 'messages'), s => { adminMsgs = s.docs.map(d => d.data()); renderAdmin(); });
+            }
+        });
+
+        /* ---------- Tabs & helpers ---------- */
+        window.switchTab = t => {
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('hidden', p.id !== 'panel-' + t));
+            document.querySelectorAll('.tab-btn[data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+        };
+        window.copyText = t => navigator.clipboard.writeText(t).then(() => showToast("Copied to clipboard."), () => showToast("Copy failed.", true));
+        window.setPayMethod = i => { payIdx = i; renderInstr(); };
+
+        /* ---------- Render ---------- */
+        function render() {
+            if (!me) return;
+            const p = profile, docs = p.docs || {};
+            const docsDone = DOCS.filter(d => d.req).every(d => docs[d.key]);
+            const paid = payments.some(x => x.status === 'Confirmed');
+            const flags = [true, docsDone, payments.length > 0, paid, !!p.approved];
+            const done = flags.filter(Boolean).length;
+
+            $('dash-name').textContent = (p.name || 'Client').split(' ')[0];
+            $('dash-email').textContent = p.email || me.email;
+            $('dash-ref').textContent = p.refCode || '...';
+            $('dash-status').textContent = p.status || '...';
+            $('tabAdmin').classList.toggle('hidden', !isAdmin());
+            $('uidBox').textContent = me.uid;
+            if (!filled && p.name) {
+                filled = true;
+                $('pName').value = p.name; $('pPhone').value = p.phone || ''; $('pCountry').value = p.country || ''; $('pDest').value = p.destination || '';
+            }
+
+            const next = !docsDone ? ['Upload your required documents', 'Your passport and academic credentials are needed before your file can be audited.', 'documents', 'Upload Documents']
+                : !payments.length ? ['Pay the processing fee', `Fee: ${money(AGENCY.fee)}. Pay the agency, then enter your payment reference.`, 'payment', 'Pay & Submit Reference']
+                : !paid ? ['Awaiting payment confirmation', 'The agency is matching your reference to your application.', null]
+                : !p.approved ? ['Final review in progress', 'Payment confirmed. Your file is with the case officer.', null]
+                : ['Application approved', 'Congratulations. The agency will contact you with next steps.', null];
+
+            const act = [{ t: p.createdAt || 0, x: 'Account created' }];
+            DOCS.forEach(d => docs[d.key] && act.push({ t: docs[d.key].at, x: `Uploaded ${d.label}` }));
+            payments.forEach(x => act.push({ t: x.createdAt, x: `Payment ${x.reference}: ${x.status}` }));
+            messages.forEach(m => act.push({ t: m.createdAt, x: m.from === 'agency' ? 'Agency replied to you' : 'You sent a message' }));
+            act.sort((a, b) => b.t - a.t);
+
+            const stat = (l, v) => `<div class="glass-panel rounded-xl p-5"><p class="text-xs uppercase tracking-wider text-gray-500">${l}</p><p class="text-2xl font-bold text-white mt-1">${v}</p></div>`;
+            setHTML('panel-overview', `
+                <div class="glass-panel rounded-xl p-6">
+                    <div class="flex">${STEPS.map((s, i) => `<div class="flex-1 text-center"><div class="mx-auto w-9 h-9 rounded-full flex items-center justify-center border-2 text-sm font-bold ${flags[i] ? 'bg-corporate-accent border-corporate-accent text-white' : 'border-gray-600 text-gray-500'}">${flags[i] ? '&#10003;' : i + 1}</div><p class="text-[11px] mt-2 ${flags[i] ? 'text-white' : 'text-gray-500'}">${s}</p></div>`).join('')}</div>
+                    <div class="h-1.5 bg-gray-800 rounded mt-5"><div class="h-full bg-corporate-accent rounded transition-all" style="width:${done / 5 * 100}%"></div></div>
+                </div>
+                <div class="glass-panel rounded-xl p-6 border border-corporate-accent/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div><p class="text-xs uppercase tracking-wider text-corporate-accent mb-1">Next step</p><h3 class="text-lg font-bold text-white">${next[0]}</h3><p class="text-sm text-gray-400">${next[1]}</p></div>
+                    ${next[2] ? `<button onclick="switchTab('${next[2]}')" class="btn-p whitespace-nowrap">${next[3]}</button>` : ''}
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    ${stat('Progress', Math.round(done / 5 * 100) + '%')}${stat('Required Docs', DOCS.filter(d => d.req && docs[d.key]).length + '/2')}${stat('Payments', payments.length)}${stat('Messages', messages.length)}
+                </div>
+                <div class="glass-panel rounded-xl p-6"><h3 class="font-bold text-white mb-4">Recent Activity</h3>
+                    <ul class="space-y-3 text-sm">${act.slice(0, 8).map(a => `<li class="flex justify-between gap-4 border-b border-white/5 pb-2"><span class="text-gray-200">${esc(a.x)}</span><span class="text-xs text-gray-500">${fmt(a.t)}</span></li>`).join('')}</ul></div>`);
+
+            setHTML('docList', DOCS.map(d => { const f = docs[d.key]; return `
+                <div class="border border-gray-700 rounded-lg p-5 bg-corporate-900/50">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div><h4 class="font-bold text-white">${d.label}</h4><p class="text-xs text-gray-400 mt-1">${d.hint}</p>
+                            ${f ? `<a href="${esc(f.url)}" target="_blank" rel="noopener" class="text-xs text-corporate-accent mt-2 inline-block">${esc(f.name)}</a>` : ''}</div>
+                        <div class="flex items-center gap-3">${f ? badge('Uploaded', 'green') : badge(d.req ? 'Required' : 'Optional', 'yellow')}
+                            <input type="file" id="f-${d.key}" class="hidden" accept=".pdf,.jpg,.jpeg,.png" onchange="uploadDoc('${d.key}', this)">
+                            <label for="f-${d.key}" class="cursor-pointer text-sm bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded border border-gray-600">${f ? 'Replace' : 'Select File'}</label></div>
+                    </div>
+                    <div id="pb-${d.key}" class="h-1.5 bg-gray-800 rounded mt-4 hidden"><div class="h-full bg-corporate-accent rounded" style="width:0%"></div></div>
+                </div>`; }).join(''));
+
+            renderInstr();
+
+            setHTML('payHist', payments.length ? [...payments].sort((a, b) => b.createdAt - a.createdAt).map(x => `
+                <div class="border border-gray-700 rounded-lg p-4 mb-3 bg-corporate-900/50 text-sm">
+                    <div class="flex justify-between items-center"><span class="font-mono text-white">${esc(x.reference)}</span>${badge(x.status, payColor(x.status))}</div>
+                    <p class="text-gray-400 mt-1">${esc(x.currency)} ${esc(x.amount)} via ${esc(x.method)} &middot; ${esc(x.date)}</p>
+                    <p class="text-xs text-green-400 mt-1">Matched to application ${esc(x.refCode)}</p>
+                </div>`).join('') : '<p class="text-sm text-gray-500">No payments submitted yet.</p>');
+
+            const th = [...messages].sort((a, b) => a.createdAt - b.createdAt);
+            setHTML('thread', th.length ? th.map(m => `<div class="flex ${m.from === 'client' ? 'justify-end' : ''}"><div class="max-w-[80%] rounded-lg px-4 py-2 text-sm ${m.from === 'client' ? 'bg-corporate-accent text-white' : 'bg-gray-800 text-gray-100'}">${esc(m.text)}<p class="text-[10px] opacity-60 mt-1">${m.from === 'agency' ? 'Agency &middot; ' : ''}${fmt(m.createdAt)}</p></div></div>`).join('') : '<p class="text-sm text-gray-500">No messages yet. Ask us anything about your application.</p>');
+            $('thread').scrollTop = $('thread').scrollHeight;
+        }
+
+        function renderInstr() {
+            const m = AGENCY.methods[payIdx];
+            const row = (k, v) => `<div class="flex justify-between items-center bg-corporate-900 border border-gray-700 rounded px-4 py-2.5"><div><p class="text-[10px] uppercase text-gray-500">${esc(k)}</p><p class="font-mono text-sm text-white break-all">${esc(v)}</p></div><button data-copy="${esc(v)}" onclick="copyText(this.dataset.copy)" class="btn-s ml-3">Copy</button></div>`;
+            setHTML('payInstr', `
+                <div class="bg-corporate-900 border border-corporate-accent/30 rounded-lg p-4 mb-5 flex justify-between items-center gap-4">
+                    <div><p class="text-xs text-gray-500 uppercase">${esc(AGENCY.feeLabel)}</p><p class="text-2xl font-bold text-white">${money(AGENCY.fee)}</p></div>
+                    <p class="text-xs text-gray-400 text-right">${esc(AGENCY.deadline)}</p>
+                </div>
+                <div class="flex gap-2 mb-4 flex-wrap">${AGENCY.methods.map((x, i) => `<button onclick="setPayMethod(${i})" class="tab-btn ${i === payIdx ? 'active' : ''}">${esc(x.name)}</button>`).join('')}</div>
+                <div class="space-y-3">${m.fields.map(([k, v]) => row(k, v)).join('')}${row('Payment Narration (your Reference ID)', profile.refCode || '')}</div>
+                <p class="text-xs text-gray-400 mt-5">${esc(AGENCY.note)}</p>`);
+        }
+
+        /* ---------- Documents ---------- */
+        window.uploadDoc = (key, input) => {
+            const file = input.files[0];
+            if (!file) return;
+            if (file.size > 10 * 1024 * 1024) return showToast("File too large (max 10 MB).", true);
+            const bar = $('pb-' + key), fill = bar.firstElementChild;
+            bar.classList.remove('hidden');
+            const task = uploadBytesResumable(sRef(storage, `docs/${me.uid}/${key}_${Date.now()}_${file.name.replace(/[^\w.-]/g, '_')}`), file);
+            task.on('state_changed',
+                s => fill.style.width = (s.bytesTransferred / s.totalBytes * 100) + '%',
+                () => { showToast("Upload failed. Is Firebase Storage enabled?", true); bar.classList.add('hidden'); },
+                async () => {
+                    try {
+                        const url = await getDownloadURL(task.snapshot.ref);
+                        const docs = { ...(profile.docs || {}), [key]: { name: file.name, url, at: Date.now() } };
+                        await updateDoc(doc(db, 'users', me.uid), { docs });
+                        if (DOCS.filter(d => d.req).every(d => docs[d.key])) await updateDoc(doc(db, 'applications', profile.refCode), { docsUploaded: true });
+                        showToast(`${file.name} uploaded.`);
+                    } catch (e) { showToast("Could not save the document record.", true); }
+                });
+        };
+
+        /* ---------- Payment reference matching ---------- */
+        window.submitPayment = async () => {
+            const reference = $('payRef').value.toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+            const amount = parseFloat($('payAmt').value), date = $('payDate').value, method = $('payMethod').value;
+            if (reference.length < 6) return showToast("Reference must be at least 6 letters/numbers.", true);
+            if (!(amount > 0) || !date) return showToast("Enter the amount and payment date.", true);
+            try {
+                await setDoc(doc(db, 'payments', reference), {
+                    uid: me.uid, refCode: profile.refCode, name: profile.name, reference, amount, currency: AGENCY.currency,
+                    expected: AGENCY.fee, method, date, status: 'Pending Verification', createdAt: Date.now()
+                });
+                $('payRef').value = ''; $('payAmt').value = '';
+                showToast("Reference submitted and matched to your application.");
+            } catch (e) {
+                showToast(e.code === 'permission-denied' ? "This reference was already submitted." : "Could not submit. Try again.", true);
+            }
+        };
+
+        /* ---------- Support & profile ---------- */
+        window.sendMessage = async () => {
+            const text = $('msgText').value.trim();
+            if (!text) return;
+            try { await addDoc(collection(db, 'messages'), { uid: me.uid, refCode: profile.refCode, name: profile.name, from: 'client', text, createdAt: Date.now() }); $('msgText').value = ''; }
+            catch (e) { showToast("Message failed to send.", true); }
+        };
+        window.saveProfile = async () => {
+            try { await updateDoc(doc(db, 'users', me.uid), { name: $('pName').value.trim(), phone: $('pPhone').value.trim(), country: $('pCountry').value.trim(), destination: $('pDest').value.trim() }); showToast("Profile updated."); }
+            catch (e) { showToast("Could not save profile.", true); }
+        };
+
+        /* ---------- Agency admin ---------- */
+        function renderAdmin() {
+            if (!isAdmin()) return;
+            const ps = [...adminPays].sort((a, b) => b.createdAt - a.createdAt);
+            const ms = [...adminMsgs].sort((a, b) => b.createdAt - a.createdAt).slice(0, 15);
+            const stat = (l, v) => `<div class="glass-panel rounded-xl p-5"><p class="text-xs uppercase text-gray-500">${l}</p><p class="text-2xl font-bold text-white">${v}</p></div>`;
+            setHTML('adminBody', `
+                <div class="grid grid-cols-3 gap-4 mb-6">${stat('Pending', ps.filter(x => x.status === 'Pending Verification').length)}${stat('Payments', ps.length)}${stat('Messages', adminMsgs.length)}</div>
+                <div class="glass-panel p-6 rounded-xl mb-6"><h2 class="text-lg font-bold text-white mb-4">Payment Matching Queue</h2>
+                ${ps.length ? ps.map(x => `
+                    <div class="border border-gray-700 rounded-lg p-4 mb-3 bg-corporate-900/50 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div class="text-sm"><p class="text-white font-semibold">${esc(x.name)} <span class="font-mono text-corporate-accent">${esc(x.refCode)}</span></p>
+                            <p class="text-gray-400">Ref <span class="font-mono text-white">${esc(x.reference)}</span> &middot; ${esc(x.currency)} ${esc(x.amount)} via ${esc(x.method)} &middot; ${esc(x.date)} ${x.amount < x.expected ? '<span class="text-red-400">(below fee)</span>' : ''}</p></div>
+                        <div class="flex gap-2 items-center flex-wrap">${badge(x.status, payColor(x.status))}
+                            <button data-id="${esc(x.id)}" onclick="adminAct(this.dataset.id,'confirm')" class="btn-s">Confirm</button>
+                            <button data-id="${esc(x.id)}" onclick="adminAct(this.dataset.id,'reject')" class="btn-s">Reject</button>
+                            <button data-id="${esc(x.id)}" onclick="adminAct(this.dataset.id,'approve')" class="btn-s">Approve App</button></div>
+                    </div>`).join('') : '<p class="text-sm text-gray-500">No payments yet.</p>'}</div>
+                <div class="glass-panel p-6 rounded-xl"><h2 class="text-lg font-bold text-white mb-4">Client Messages</h2>
+                ${ms.length ? ms.map(m => `<div class="border-b border-white/5 py-3 text-sm flex justify-between gap-4"><div><span class="text-gray-500">${m.from === 'agency' ? 'You' : esc(m.name)} (${esc(m.refCode)}):</span> <span class="text-gray-100">${esc(m.text)}</span></div>
+                    ${m.from === 'client' ? `<button data-uid="${esc(m.uid)}" data-ref="${esc(m.refCode)}" onclick="adminReply(this)" class="btn-s">Reply</button>` : ''}</div>`).join('') : '<p class="text-sm text-gray-500">No messages.</p>'}</div>`);
+        }
+        window.adminAct = async (id, act) => {
+            const p = adminPays.find(x => x.id === id);
+            if (!p) return;
+            const [ps, st] = { confirm: ['Confirmed', 'Payment Confirmed'], reject: ['Rejected', 'Payment Rejected'], approve: ['Confirmed', 'Application Approved'] }[act];
+            try {
+                await updateDoc(doc(db, 'payments', id), { status: ps });
+                await updateDoc(doc(db, 'applications', p.refCode), { paymentStatus: ps === 'Confirmed' ? 'Paid & Confirmed' : 'Rejected', status: st });
+                await updateDoc(doc(db, 'users', p.uid), act === 'approve' ? { status: st, approved: true } : { status: st });
+                showToast(`${p.refCode}: ${st}`);
+            } catch (e) { showToast("Update failed - check admin ID in rules.", true); }
+        };
+        window.adminReply = async btn => {
+            const text = prompt("Reply to client:");
+            if (!text) return;
+            try { await addDoc(collection(db, 'messages'), { uid: btn.dataset.uid, refCode: btn.dataset.ref, from: 'agency', text, createdAt: Date.now() }); showToast("Reply sent."); }
+            catch (e) { showToast("Reply failed.", true); }
+        };
+
+        /* ---------- Public invoice verification ---------- */
+        window.executeVerification = async () => {
+            if (!guard()) return;
+            const code = $('verifyInput').value.trim().toUpperCase();
+            if (!code) return showToast("Please enter a valid Reference Code", true);
+            $('verifyResult').classList.add('hidden');
+            try {
+                const s = await getDoc(doc(db, 'applications', code));
+                if (!s.exists()) return showToast("No record found matching this Reference Code.", true);
+                const d = s.data();
+                $('v-name').textContent = d.name; $('v-email').textContent = d.paymentStatus || '-'; $('v-status').textContent = d.status;
+                const el = $('v-docs');
+                el.textContent = d.docsUploaded ? "Verified & Secured" : "Pending Upload";
+                el.className = `font-semibold ${d.docsUploaded ? 'text-green-400' : 'text-yellow-400'} text-base`;
+                $('verifyResult').classList.remove('hidden');
+                showToast("Record successfully traced.");
+            } catch (e) { console.error(e); showToast("System error querying the registry.", true); }
+        };
+
+        /* ---------- Init ---------- */
+        $('payMethod').innerHTML = AGENCY.methods.map(m => `<option>${esc(m.name)}</option>`).join('') + '<option>Other</option>';
+        $('payDate').value = new Date().toISOString().slice(0, 10);
+        $('contactBox').innerHTML = `<p>${esc(AGENCY.contact.email)}</p><p>${esc(AGENCY.contact.phone)}</p><p class="text-gray-500">${esc(AGENCY.contact.hours)}</p>`;
+        $('mobileMenuBtn').onclick = () => me ? showDashboard() : showAuthModal();
+    </script>
+
+    <!-- General UI Scripts -->
+    <script>
+        // Custom Toast Function (Replacing default alerts)
+        window.showToast = function(message, isError = false) {
+            const toast = document.getElementById('toastMsg');
+            toast.textContent = message;
+            toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded shadow-lg z-50 text-white transform transition-transform duration-300 translate-y-0 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+            setTimeout(() => {
+                toast.className = 'fixed bottom-4 right-4 px-6 py-3 rounded shadow-lg z-50 text-white transform transition-transform duration-300 translate-y-20 opacity-0 pointer-events-none';
+            }, 4000);
+        };
+
+        // Scroll Reveal Animation (Intersection Observer)
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        });
+
+        // View Toggling
+        window.showDashboard = function() {
+            document.getElementById('landingView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+            window.scrollTo(0,0);
+        };
+
+        window.showLanding = function() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('landingView').classList.remove('hidden');
+        };
+
+        // Auth Modal Toggling
+        window.showAuthModal = function() { document.getElementById('authModal').classList.remove('hidden'); document.getElementById('authModal').classList.add('flex'); };
+        window.hideAuthModal = function() { document.getElementById('authModal').classList.add('hidden'); document.getElementById('authModal').classList.remove('flex'); };
+        
+        window.switchAuthTab = function(tab) {
+            if(tab === 'login') {
+                document.getElementById('formLogin').classList.remove('hidden');
+                document.getElementById('formSignup').classList.add('hidden');
+                document.getElementById('tabLogin').classList.add('text-corporate-accent', 'border-b-2', 'border-corporate-accent');
+                document.getElementById('tabLogin').classList.remove('text-gray-500');
+                document.getElementById('tabSignup').classList.add('text-gray-500');
+                document.getElementById('tabSignup').classList.remove('text-corporate-accent', 'border-b-2', 'border-corporate-accent');
+            } else {
+                document.getElementById('formSignup').classList.remove('hidden');
+                document.getElementById('formLogin').classList.add('hidden');
+                document.getElementById('tabSignup').classList.add('text-corporate-accent', 'border-b-2', 'border-corporate-accent');
+                document.getElementById('tabSignup').classList.remove('text-gray-500');
+                document.getElementById('tabLogin').classList.add('text-gray-500');
+                document.getElementById('tabLogin').classList.remove('text-corporate-accent', 'border-b-2', 'border-corporate-accent');
+            }
+        };
+
+        // Privacy Modal
+        window.togglePrivacyModal = function() {
+            const m = document.getElementById('privacyModal');
+            if(m.classList.contains('hidden')) {
+                m.classList.remove('hidden');
+                m.classList.add('flex');
+            } else {
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
+        };
+
+        // File Input UI Update
+        window.updateFileName = function(inputId, displayId) {
+            const file = document.getElementById(inputId).files[0];
+            document.getElementById(displayId).textContent = file ? file.name : "No file chosen";
+        };
+    </script>
+</body>
+</html>
