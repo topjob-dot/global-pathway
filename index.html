@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Global Pathway | Visa &amp; Immigration Agency</title>
+<meta name="description" content="Global Pathway helps you with study visas, work permits, family reunification and tourist visas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="fileBanner" class="banner" hidden>
+  <strong>Opened as a local file (file://).</strong> Browsers block Firebase modules on file:// pages, so login and data will not work.
+  Serve this folder over http, e.g. run <code>python3 -m http.server 8000</code> and open <code>http://localhost:8000</code>, or upload it to a web host.
+</div>
+
+<header class="nav" id="nav">
+  <a class="brand" href="#top">&#127760; Global<span>Pathway</span></a>
+  <button id="menuBtn" class="menu-btn" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+  <nav id="navLinks" class="links">
+    <a href="#services">Services</a>
+    <a href="#process">Process</a>
+    <a href="#verify">Verify</a>
+    <a href="#" id="navLogin" data-open="login">Log In</a>
+    <a href="#" id="navStart" class="btn small" data-open="signup">Get Started</a>
+    <a href="#" id="navDash" class="btn small" hidden>Dashboard</a>
+    <a href="#" id="navLogout" hidden>Log Out</a>
+  </nav>
+</header>
+
+<!-- ============ PUBLIC SITE ============ -->
+<div id="publicSite">
+  <section class="hero" id="top">
+    <div class="wrap hero-in reveal">
+      <span class="pill">Trusted visa &amp; immigration support</span>
+      <h1>Your pathway to a new country, <em>made simple.</em></h1>
+      <p class="lead">Register, upload your documents, pay the processing fee and track your application live &mdash; all in one secure portal.</p>
+      <div class="cta">
+        <a href="#" class="btn" data-open="signup">Start Your Application</a>
+        <a href="#verify" class="btn ghost">Verify an Application</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="services">
+    <div class="wrap">
+      <h2 class="reveal">Our Services</h2>
+      <p class="sub reveal">Expert guidance for every type of visa.</p>
+      <div class="grid4">
+        <article class="glass card reveal"><div class="ico">&#127891;</div><h3>Study Visas</h3><p>Admission support, financial documents and student visa applications for universities worldwide.</p></article>
+        <article class="glass card reveal"><div class="ico">&#128188;</div><h3>Work Permits</h3><p>Employer-sponsored and skilled worker permits, prepared and reviewed by specialists.</p></article>
+        <article class="glass card reveal"><div class="ico">&#128106;</div><h3>Family Reunification</h3><p>Bring your spouse, children or parents together with a properly prepared case file.</p></article>
+        <article class="glass card reveal"><div class="ico">&#9992;&#65039;</div><h3>Tourist Visas</h3><p>Fast, accurate visitor visa applications for holidays, events and family visits.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec alt" id="process">
+    <div class="wrap">
+      <h2 class="reveal">How It Works</h2>
+      <p class="sub reveal">Four simple steps from sign-up to approval.</p>
+      <div class="grid4">
+        <div class="glass step reveal"><b>1</b><h3>Register</h3><p>Create your account and receive a unique Reference ID.</p></div>
+        <div class="glass step reveal"><b>2</b><h3>Upload Documents</h3><p>Submit your passport and academic credentials securely.</p></div>
+        <div class="glass step reveal"><b>3</b><h3>Pay the Fee</h3><p>Pay the processing fee and submit your transaction reference.</p></div>
+        <div class="glass step reveal"><b>4</b><h3>Track &amp; Get Approved</h3><p>Follow your progress live until your application is approved.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="verify">
+    <div class="wrap narrow">
+      <h2 class="reveal">Verify an Application</h2>
+      <p class="sub reveal">Enter a Reference Code to check the status of an application.</p>
+      <form id="verifyForm" class="glass pad reveal">
+        <div class="row">
+          <input id="verifyCode" type="text" placeholder="e.g. REF-123456" maxlength="10" autocomplete="off" required>
+          <button class="btn" type="submit">Verify</button>
+        </div>
+        <div id="verifyResult" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
+
+  <section class="sec alt" id="faq">
+    <div class="wrap narrow">
+      <h2 class="reveal">Frequently Asked Questions</h2>
+      <div class="faq reveal">
+        <details><summary>How long does processing take?</summary><p>Once your documents are complete and your payment is confirmed, our team starts immediately. Timelines depend on the destination country.</p></details>
+        <details><summary>How do I pay the processing fee?</summary><p>After registering, open the Payment tab in your dashboard to see our bank and mobile money details, then submit your transaction reference.</p></details>
+        <details><summary>Which documents do I need?</summary><p>A passport and your academic credentials are required. A passport photo and supporting documents are optional but helpful.</p></details>
+        <details><summary>Is my information safe?</summary><p>Yes. Your files are stored securely and only you and our agency staff can access them. Public verification never shows your email or phone.</p></details>
+        <details><summary>Can I get a refund?</summary><p>Processing fees cover work already carried out. Please contact support to discuss special circumstances.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <div><a class="brand" href="#top">&#127760; Global<span>Pathway</span></a><p class="muted">Visa &amp; immigration agency portal.</p></div>
+      <div class="foot-links"><a href="#services">Services</a><a href="#process">Process</a><a href="#verify">Verify</a><a href="#" data-open="privacy">Privacy Policy</a></div>
+    </div>
+    <p class="copy">&copy; <span id="year"></span> Global Pathway. All rights reserved.</p>
+  </footer>
+</div>
+
+<!-- ============ CLIENT DASHBOARD ============ -->
+<main id="dashboard" hidden>
+  <div class="wrap">
+    <div class="glass dash-head">
+      <div>
+        <h2 id="welcome">Welcome</h2>
+        <p class="muted">Reference ID: <b id="refId">&mdash;</b> <button type="button" class="chip" id="refCopy" data-copy="">Copy</button></p>
+      </div>
+      <span id="statusBadge" class="badge info">&mdash;</span>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="documents">Documents</button>
+      <button class="tab" data-tab="payment">Payment</button>
+      <button class="tab" data-tab="support">Support</button>
+      <button class="tab" data-tab="profile">Profile</button>
+      <button class="tab" data-tab="admin" id="tabAdminBtn" hidden>Agency Admin</button>
+    </div>
+
+    <section class="panel" id="tab-overview">
+      <div id="progress" class="progress glass"></div>
+      <div id="nextStep" class="glass next"></div>
+      <div id="stats" class="grid4"></div>
+      <div class="glass pad"><h3>Recent activity</h3><ul id="activity" class="list"></ul></div>
+    </section>
+
+    <section class="panel" id="tab-documents" hidden>
+      <div id="docsList" class="grid2"></div>
+      <p class="muted small-note">Accepted: PDF, JPG or PNG, up to 10 MB each. Passport and Academic Credentials are required.</p>
+    </section>
+
+    <section class="panel" id="tab-payment" hidden>
+      <div class="glass pad" id="payInstr"></div>
+      <form id="payForm" class="glass pad">
+        <h3>Submit your payment</h3>
+        <div class="grid2">
+          <label>Transaction Reference<input id="pfRef" type="text" required autocomplete="off"></label>
+          <label>Amount<input id="pfAmount" type="number" min="0" step="0.01" required></label>
+          <label>Payment Date<input id="pfDate" type="date" required></label>
+          <label>Method<select id="pfMethod"></select></label>
+        </div>
+        <button class="btn" id="pfSubmit" type="submit">Submit Payment</button>
+      </form>
+      <div class="glass pad"><h3>Payment history</h3><ul id="payHistory" class="list"></ul></div>
+    </section>
+
+    <section class="panel" id="tab-support" hidden>
+      <div class="glass pad">
+        <h3>Messages</h3>
+        <div id="thread" class="thread"></div>
+        <form id="msgForm" class="row">
+          <textarea id="msgText" rows="2" placeholder="Write a message to the agency..." required></textarea>
+          <button class="btn" type="submit">Send</button>
+        </form>
+      </div>
+      <div class="glass pad" id="contactBox"></div>
+      <div class="glass pad faq">
+        <h3>Quick answers</h3>
+        <details><summary>When is my payment confirmed?</summary><p>Our team matches your transaction reference to our records, usually within 1&ndash;2 business days.</p></details>
+        <details><summary>I made a mistake in my payment reference.</summary><p>Send us a message here with the correct reference and we will fix it.</p></details>
+        <details><summary>Can I replace an uploaded document?</summary><p>Yes. Upload a new file in the same slot on the Documents tab.</p></details>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-profile" hidden>
+      <form id="profileForm" class="glass pad">
+        <h3>Your profile</h3>
+        <div class="grid2">
+          <label>Full name<input id="prName" type="text" required></label>
+          <label>Phone<input id="prPhone" type="tel"></label>
+          <label>Country<input id="prCountry" type="text"></label>
+          <label>Destination<input id="prDest" type="text"></label>
+        </div>
+        <button class="btn" type="submit">Save changes</button>
+      </form>
+      <div class="glass pad">
+        <h3>Account</h3>
+        <p class="muted">Account UID: <code id="prUid">&mdash;</code> <button type="button" class="chip" id="uidCopy" data-copy="">Copy</button></p>
+        <button type="button" class="btn ghost" id="resetBtn">Send password reset email</button>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-admin" hidden>
+      <div class="glass pad"><h3>Payment matching queue</h3><ul id="adminPayments" class="list"></ul></div>
+      <div class="glass pad">
+        <h3>Client messages</h3>
+        <ul id="adminMessages" class="list"></ul>
+        <form id="replyForm" class="reply" hidden>
+          <p class="muted">Replying to <b id="replyTo"></b></p>
+          <textarea id="replyText" rows="2" required></textarea>
+          <div class="row"><button class="btn" type="submit">Send reply</button><button class="btn ghost" type="button" id="replyCancel">Cancel</button></div>
+        </form>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ============ MODALS ============ -->
+<div class="modal" id="authModal" role="dialog" aria-modal="true" aria-label="Log in or sign up">
+  <div class="modal-box glass">
+    <button class="x" data-close aria-label="Close">&times;</button>
+    <div class="mtabs">
+      <button type="button" class="mtab active" data-authtab="login">Log In</button>
+      <button type="button" class="mtab" data-authtab="signup">Sign Up</button>
+    </div>
+    <form id="loginForm">
+      <label>Email<input id="liEmail" type="email" required autocomplete="email"></label>
+      <label>Password<input id="liPass" type="password" required autocomplete="current-password"></label>
+      <button class="btn block" type="submit">Log In</button>
+      <p class="center"><a href="#" id="forgotLink">Forgot password?</a></p>
+    </form>
+    <form id="signupForm" hidden>
+      <label>Full name<input id="suName" type="text" required autocomplete="name"></label>
+      <label>Email<input id="suEmail" type="email" required autocomplete="email"></label>
+      <label>Phone<input id="suPhone" type="tel" autocomplete="tel"></label>
+      <div class="grid2">
+        <label>Country<input id="suCountry" type="text"></label>
+        <label>Destination<input id="suDest" type="text"></label>
+      </div>
+      <label>Password (min 6 characters)<input id="suPass" type="password" minlength="6" required autocomplete="new-password"></label>
+      <button class="btn block" type="submit">Create Account</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="privacyModal" role="dialog" aria-modal="true" aria-label="Privacy policy">
+  <div class="modal-box glass wide">
+    <button class="x" data-close aria-label="Close">&times;</button>
+    <h3>Privacy Policy</h3>
+    <div class="policy">
+      <p><b>What we collect.</b> Name, email, phone, country, destination, uploaded documents, payment references and messages you send us.</p>
+      <p><b>How we use it.</b> To process your visa or immigration application, verify payments, and communicate with you. We do not sell your data.</p>
+      <p><b>Public verification.</b> Anyone with your Reference Code can see your shortened name, application status, document status and payment status. Your email and phone are never shown publicly.</p>
+      <p><b>Storage &amp; access.</b> Data is stored with Google Firebase. Your documents can be read only by you and authorised agency staff.</p>
+      <p><b>Your rights.</b> You can update your profile at any time and ask us to correct or delete your data by contacting support.</p>
+      <p><b>Security.</b> We use industry-standard protections, but no online system is completely risk free. Keep your password private.</p>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<!-- Bootstrap that must work even on file:// (menu, scroll animation, file:// warning) -->
+<script>
+(function () {
+  if (location.protocol === "file:") document.getElementById("fileBanner").hidden = false;
+  var menu = document.getElementById("menuBtn"), links = document.getElementById("navLinks");
+  menu.addEventListener("click", function () {
+    var open = links.classList.toggle("open");
+    menu.setAttribute("aria-expanded", open);
+  });
+  links.addEventListener("click", function (e) { if (e.target.closest("a")) { links.classList.remove("open"); menu.setAttribute("aria-expanded", "false"); } });
+  var items = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    items.forEach(function (el) { io.observe(el); });
+  } else { items.forEach(function (el) { el.classList.add("in"); }); }
+  document.getElementById("year").textContent = new Date().getFullYear();
+})();
+</script>
+<script type="module" src="script.js"></script>
+</body>
+</html>
